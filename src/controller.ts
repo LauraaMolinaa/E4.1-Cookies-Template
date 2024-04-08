@@ -27,6 +27,9 @@ export const getHome = async (req: IncomingMessage, res: ServerResponse) => {
             cookies: req.headers.cookie?.toString(),
         }),
     );
+
+    //add getCookies here 
+    //test 
 };
 
 export const changeLanguage = async (
@@ -124,25 +127,28 @@ const getCookies = (req: IncomingMessage): Record<string, string> => {
      * 3. Return the object.
      */
     type cookies = Record<string, string>
-    let cooks: cookies = { "abc" : "blabla", 
-                            "another" : "cookie"}
+    let cooks: cookies = { }
 
     let temp_header = req.headers.cookie?.toString()
     let cookie = temp_header?.split(";")
-    //let cookie_keys_values = []
+    let cookie_keys_values = []
 
     for(let i = 0; i < (cookie?.length || 1); i++)
     {
-        //cookie_keys_values.push(cookie![i].split("="))
+        cookie_keys_values.push(cookie![i].split("="))
     }
 
     //how do i add to a Record?
-    // for(let i = 0; i < cookie_keys_values.length - 1; i++)
-    // {
-    //     //cooks[cookie_keys_values[i][i]] =  
-    // }
+    for(let i = 0; i < cookie_keys_values.length - 1; i++)
+    {
+        for (let j = 0; j < cookie_keys_values[i].length - 1; j++)
+        {
+            cooks[cookie_keys_values[i][j]] =  cookie_keys_values[i][j + 1]
+        }
+        
+    }
     
 
     //let parsed_header= req.headers
-    return {};
+    return cooks;
 };
