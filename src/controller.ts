@@ -16,6 +16,11 @@ export const getHome = async (req: IncomingMessage, res: ServerResponse) => {
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/html");
+    res.setHeader("Set-Cookie", [
+        "likes=movies",
+        "lovesWebDev=true",
+        "hungry=true"
+      ]);
     res.end(
         await renderTemplate("src/views/HomeView.hbs", {
             title: "Welcome",
@@ -118,6 +123,26 @@ const getCookies = (req: IncomingMessage): Record<string, string> => {
      *    - Assign the name as the key and the value as the value.
      * 3. Return the object.
      */
+    type cookies = Record<string, string>
+    let cooks: cookies = { "abc" : "blabla", 
+                            "another" : "cookie"}
 
+    let temp_header = req.headers.cookie?.toString()
+    let cookie = temp_header?.split(";")
+    //let cookie_keys_values = []
+
+    for(let i = 0; i < (cookie?.length || 1); i++)
+    {
+        //cookie_keys_values.push(cookie![i].split("="))
+    }
+
+    //how do i add to a Record?
+    // for(let i = 0; i < cookie_keys_values.length - 1; i++)
+    // {
+    //     //cooks[cookie_keys_values[i][i]] =  
+    // }
+    
+
+    //let parsed_header= req.headers
     return {};
 };
