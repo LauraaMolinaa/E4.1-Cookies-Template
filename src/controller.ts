@@ -19,17 +19,37 @@ export const getHome = async (req: IncomingMessage, res: ServerResponse) => {
     res.setHeader("Set-Cookie", [
         "likes=movies",
         "lovesWebDev=true",
-        "hungry=true"
-      ]);
-    res.end(
-        await renderTemplate("src/views/HomeView.hbs", {
-            title: "Welcome",
-            cookies: req.headers.cookie?.toString(),
-        }),
-    );
+        "hungry=true", 
+        "language=fr"
+    ]);
+
+    const cookies = getCookies(req)
+    let message; 
+
+    if (cookies["language"] == "en")
+    {
+        res.end(
+            await renderTemplate("src/views/HomeView.hbs", {
+                title: "Welcome!",
+                cookies: req.headers.cookie?.toString(),
+            }),
+        );
+        return 
+    }
+    if (cookies["language"] == "fr")
+    {
+        res.end(
+            await renderTemplate("src/views/HomeView.hbs", {
+                title: "Bienvenue!",
+                cookies: req.headers.cookie?.toString(),
+            }),
+        );
+        return 
+    }
 
     //add getCookies here 
     //test 
+    
 };
 
 export const changeLanguage = async (
@@ -69,13 +89,45 @@ export const getOnePokemon = async (
         return;
     }
 
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/html");
-    res.end(
-        await renderTemplate("src/views/ShowView.hbs", {
-            pokemon: foundPokemon,
-        }),
-    );
+    const cookies = getCookies(req)
+    //let lang = cookies["language"]
+
+    if (cookies["language"] == "fr")
+    {
+        const frenchPokemon = {
+            name: foundPokemon.name.fr, 
+            type: foundPokemon.type.fr, 
+            info: foundPokemon.info.fr, 
+            image: foundPokemon.image
+        }
+
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "text/html");
+        res.end(
+            await renderTemplate("src/views/ShowView.hbs", {
+                pokemon: frenchPokemon
+            }),
+        );
+        return
+    }
+    if (cookies["language"] == "en")
+    {
+        const englishPokemon = {
+            name: foundPokemon.name.en, 
+            type: foundPokemon.type.en, 
+            info: foundPokemon.info.en, 
+            image: foundPokemon.image
+        }
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "text/html");
+        res.end(
+            await renderTemplate("src/views/ShowView.hbs", {
+                pokemon: englishPokemon
+            }),
+        );
+        return
+    }
+    
 };
 
 export const getAllPokemon = async (
@@ -88,13 +140,49 @@ export const getAllPokemon = async (
      * 3. Send the appropriate Pokemon data to the view based on the language.
      */
 
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/html");
-    res.end(
-        await renderTemplate("src/views/ListView.hbs", {
-            pokemon: database,
-        }),
-    );
+    const cookies = getCookies(req)
+
+    if (cookies["language"] == "fr")
+    {
+        let frenchPokemons = database.map((item) => {
+            return {
+                id: item.id, 
+                name: item.name.fr, 
+                type: item.type.fr, 
+                image: item.image
+            }
+        })
+
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "text/html");
+        res.end(
+            await renderTemplate("src/views/ListView.hbs", {
+                pokemon: frenchPokemons,
+            }),
+        );
+        return
+    }
+
+    if (cookies["language"] == "en")
+    {
+        let englishPokemons = database.map((item) => {
+            return {
+                id: item.id, 
+                name: item.name.en, 
+                type: item.type.en, 
+                image: item.image
+            }
+        })
+
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "text/html");
+        res.end(
+            await renderTemplate("src/views/ListView.hbs", {
+                pokemon: englishPokemons,
+            }),
+        );
+        return
+    }
 };
 
 const parseBody = async (req: IncomingMessage) => {
@@ -130,7 +218,7 @@ const getCookies = (req: IncomingMessage): Record<string, string> => {
     let cooks: cookies = { }
 
     let temp_header = req.headers.cookie?.toString()
-    let cookie = temp_header?.split(";")
+    let cookie = temp_header?.split("; ")
     let cookie_keys_values = []
 
     for(let i = 0; i < (cookie?.length || 1); i++)
@@ -139,7 +227,7 @@ const getCookies = (req: IncomingMessage): Record<string, string> => {
     }
 
     //how do i add to a Record?
-    for(let i = 0; i < cookie_keys_values.length - 1; i++)
+    for(let i = 0; i < cookie_keys_values.length; i++)
     {
         for (let j = 0; j < cookie_keys_values[i].length - 1; j++)
         {
